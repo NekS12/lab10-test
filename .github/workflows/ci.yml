@@ -25,7 +25,9 @@ jobs:
         run: cp .env.ci .env
 
       - name: Run Tests
-        run: php artisan test --coverage-clover=clover.xml
+        run: |
+          php artisan config:clear
+          php artisan test --coverage-clover=clover.xml
 
       - name: Check Coverage Gate
         run: |
