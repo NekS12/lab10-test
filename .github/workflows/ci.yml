@@ -21,48 +21,48 @@ jobs:
       - name: Install Dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
-      - name: Prepare Enviroment
+      - name: Prepare Environment
         run: cp .env.ci .env
 
-      # a. Тесты и Gate 50%
       - name: Run Tests
-        [cite_start]run: php artisan test --coverage-clover=clover.xml [cite: 13]
+        run: php artisan test --coverage-clover=clover.xml
 
       - name: Check Coverage Gate
         run: |
-          # Простая проверка на покрытие выше 50% [cite: 14]
           PERCENT=$(php -r '$xml = simplexml_load_file("clover.xml"); $metrics = $xml->xpath("//metrics"); echo round((double)$metrics[0]["coveredstatements"] / (double)$metrics[0]["statements"] * 100);')
           if [ $PERCENT -lt 50 ]; then echo "Coverage is $PERCENT%, less than 50%"; exit 1; fi
 
-      # b. Статический анализ
       - name: PHPStan
-        [cite_start]run: ./vendor/bin/phpstan analyse [cite: 17]
+        run: ./vendor/bin/phpstan analyse
 
-      # c. Линтер (Laravel Pint)
       - name: Pint Linting
-        [cite_start]run: ./vendor/bin/pint --test [cite: 21]
+        run: ./vendor/bin/pint --test
 
   deploy:
     needs: compliance
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
-    # Ручной аппрув для master 
     environment: 
       name: ${{ github.ref_name == 'master' && 'production' || github.ref_name }}
     
     steps:
       - uses: actions/checkout@v3
 
-      - [cite_start]name: Deploy Simulation [cite: 27]
+      - name: Deploy Simulation
         run: |
           case "${{ github.ref_name }}" in
             "develop") ENV="dev" ;;
             "qa") ENV="uat" ;;
             "master"|"main") ENV="prod" ;;
           esac
-          cp .env.$ENV .env
-          echo "Deploying to [$ENV] with .env.$ENV"
+          if [ -f ".env.$ENV" ]; then
+            cp ".env.$ENV" .env
+            echo "Deploying to [$ENV] with .env.$ENV"
+          else
+            echo "Environment file .env.$ENV not found!"
+            exit 1
+          fi
 
-      - [cite_start]name: Notify Maintainers [cite: 30]
+      - name: Notify Maintainers
         if: always()
         run: echo "Pipeline result sent to maintainers"
