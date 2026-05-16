@@ -75,11 +75,11 @@ class InstructorTest extends TestCase
     /**
      * Проверка бизнес-логики: не более 3-х МК в день.
      */
-    public function test_instructor_cannot_create_more_than_three_classes_per_day()
+   public function test_instructor_cannot_create_more_than_three_classes_per_day()
     {
         $date = Carbon::now()->addDays(2)->format('Y-m-d');
 
-        // Создаем 3 мастер-класса вручную на одну дату
+        // ИСПРАВЛЕНИЕ: Разносим время мастер-классов, чтобы не срабатывал UNIQUE constraint в БД
         for ($i = 0; $i < 3; $i++) {
             MasterClass::create([
                 'instructor_id' => $this->instructor->id,
@@ -87,13 +87,13 @@ class InstructorTest extends TestCase
                 'title' => "МК $i",
                 'description' => 'Какое-то описание',
                 'date' => $date,
-                'start_time' => '09:00',
+                'start_time' => (9 + $i) . ':00', // Будет 09:00, 10:00, 11:00
                 'max_participants' => 5,
                 'price' => 100,
             ]);
         }
 
-        // Пытаемся создать 4-й
+        // Пытаемся создать 4-й — здесь должен сработать твой валидатор в контроллере
         $response = $this->actingAs($this->instructor)
             ->from(route('cabinet.create'))
             ->post(route('cabinet.store'), [
