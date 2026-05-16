@@ -10,7 +10,7 @@ class CategoryController extends Controller
     public function show($id)
     {
         $type = CreativityType::findOrFail($id);
-        
+
         $classes = MasterClass::where('type_id', $id)
             ->where('date', '>=', now())
             ->with(['instructor', 'type'])

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MasterClass;
 use App\Models\Booking;
+use App\Models\MasterClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -40,7 +40,6 @@ class BookingController extends Controller
         if (Booking::isAlreadyBooked(Auth::id(), $id)) {
             return redirect()->back()->with('error', 'Вы уже записаны на этот мастер-класс.');
         }
-
 
         // Создаем запись
         Booking::create([

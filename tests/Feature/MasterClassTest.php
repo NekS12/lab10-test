@@ -2,12 +2,11 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
+use App\Models\CreativityType;
 use App\Models\MasterClass;
 use App\Models\User;
-use App\Models\CreativityType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Carbon\Carbon;
+use Tests\TestCase;
 
 class MasterClassTest extends TestCase
 {
@@ -15,7 +14,7 @@ class MasterClassTest extends TestCase
 
     public function test_can_see_home_page()
     {
-        $response = $this->get('/'); 
+        $response = $this->get('/');
         $response->assertStatus(200);
     }
 
@@ -26,12 +25,12 @@ class MasterClassTest extends TestCase
             'email' => 'master_logic@example.com',
             'password' => bcrypt('Password123!'),
             'phone' => '+79991112288',
-            'role' => 'instructor'
+            'role' => 'instructor',
         ]);
 
         $type = CreativityType::create([
             'name' => 'Лепка',
-            'description' => 'Работа с глиной'
+            'description' => 'Работа с глиной',
         ]);
 
         $mc = MasterClass::create([
@@ -42,7 +41,7 @@ class MasterClassTest extends TestCase
             'date' => '2026-06-01',
             'start_time' => '13:00',
             'max_participants' => 10,
-            'price' => 1500
+            'price' => 1500,
         ]);
 
         $this->assertEquals('Лепка из глины', $mc->title);
@@ -50,7 +49,7 @@ class MasterClassTest extends TestCase
 
         // Проверка getEndTimeAttribute
         $this->assertEquals('15:00', $mc->end_time);
-        
+
         // Проверка formatted_date_time
         $this->assertEquals('01.06.2026 13:00', $mc->formatted_date_time);
     }

@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property Carbon $date
@@ -13,8 +12,6 @@ use Carbon\Carbon;
  * @property int $max_participants
  * @property float $price
  */
-
-
 class MasterClass extends Model
 {
     use HasFactory;
@@ -25,7 +22,7 @@ class MasterClass extends Model
         'title',
         'description',
         'date',
-        'start_time', 
+        'start_time',
         'max_participants',
         'price',
     ];
@@ -67,19 +64,20 @@ class MasterClass extends Model
         }
 
         // Проверяем, не записан ли пользователь уже
-        return !$this->bookings()->where('user_id', $user->id)->exists();
+        return ! $this->bookings()->where('user_id', $user->id)->exists();
     }
 
     // Форматирование даты и времени для отображения
     public function getFormattedDateTimeAttribute(): string
     {
-        return $this->date->format('d.m.Y') . ' ' . $this->start_time;
+        return $this->date->format('d.m.Y').' '.$this->start_time;
     }
 
     // Продолжительность всегда 2 часа (по ТЗ)
     public function getEndTimeAttribute(): string
     {
         $startTime = Carbon::parse($this->start_time);
+
         return $startTime->addHours(2)->format('H:i');
     }
 }

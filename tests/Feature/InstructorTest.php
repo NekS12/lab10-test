@@ -2,18 +2,19 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\MasterClass;
 use App\Models\CreativityType;
+use App\Models\MasterClass;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Carbon\Carbon;
 
 class InstructorTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $instructor;
+
     protected $type;
 
     protected function setUp(): void
@@ -61,7 +62,7 @@ class InstructorTest extends TestCase
             ->post(route('cabinet.store'), $data);
 
         // Если тест падает тут, значит в контроллере после сохранения стоит редирект не в индекс
-        $response->assertStatus(302); 
+        $response->assertStatus(302);
         $this->assertDatabaseHas('master_classes', ['title' => 'Новый мастер-класс']);
     }
 
@@ -106,7 +107,7 @@ class InstructorTest extends TestCase
             'full_name' => 'Другой Мастер',
             'email' => 'other_unique@test.ru',
             'password' => bcrypt('Password123!'),
-            'phone' => '+7000' . rand(1111111, 9999999),
+            'phone' => '+7000'.rand(1111111, 9999999),
             'role' => 'instructor',
         ]);
 
@@ -124,6 +125,6 @@ class InstructorTest extends TestCase
         $response = $this->actingAs($this->instructor)
             ->get(route('cabinet.edit', $otherClass->id));
 
-        $response->assertStatus(404); 
+        $response->assertStatus(404);
     }
 }

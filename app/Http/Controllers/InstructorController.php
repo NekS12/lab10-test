@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\MasterClass;
 use App\Models\CreativityType;
-use Illuminate\Support\Facades\Auth;
+use App\Models\MasterClass;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class InstructorController extends Controller
 {
@@ -26,27 +26,27 @@ class InstructorController extends Controller
     public function create()
     {
         $types = CreativityType::all();
-        
+
         // Получаем занятые слоты для текущего ведущего
         $busySlots = MasterClass::where('instructor_id', Auth::id())
             ->where('date', '>=', Carbon::now()->startOfDay())
             ->get(['date', 'start_time'])
-            ->map(function($item) {
-                return $item->date->format('Y-m-d') . '|' . $item->start_time;
+            ->map(function ($item) {
+                return $item->date->format('Y-m-d').'|'.$item->start_time;
             })
             ->toArray();
-        
+
         // Доступные даты: от сегодня до +30 дней
         $availableDates = [];
         for ($i = 0; $i <= 30; $i++) {
             $date = Carbon::now()->addDays($i);
-            if (!$date->isWeekend()) {
+            if (! $date->isWeekend()) {
                 $availableDates[] = $date->format('Y-m-d');
             }
         }
-        
+
         $timeSlots = ['09:00', '11:00', '13:00', '15:00'];
-        
+
         return view('create', compact('types', 'busySlots', 'availableDates', 'timeSlots'));
     }
 
@@ -70,16 +70,16 @@ class InstructorController extends Controller
         if ($isBusy) {
             return back()
                 ->withErrors([
-                    'start_time' => 'У вас уже запланирован мастер-класс на эту дату и время! Выберите другую дату или время.'
+                    'start_time' => 'У вас уже запланирован мастер-класс на эту дату и время! Выберите другую дату или время.',
                 ])
                 ->withInput();
         }
 
         $selectedDate = Carbon::parse($validated['date']);
-        if ($selectedDate->isPast() && !$selectedDate->isToday()) {
+        if ($selectedDate->isPast() && ! $selectedDate->isToday()) {
             return back()
                 ->withErrors([
-                    'date' => 'Нельзя создать мастер-класс на прошедшую дату.'
+                    'date' => 'Нельзя создать мастер-класс на прошедшую дату.',
                 ])
                 ->withInput();
         }
@@ -87,11 +87,11 @@ class InstructorController extends Controller
         $classesCountOnDate = MasterClass::where('instructor_id', Auth::id())
             ->where('date', $validated['date'])
             ->count();
-        
+
         if ($classesCountOnDate >= 3) {
             return back()
                 ->withErrors([
-                    'date' => 'Вы не можете провести более 3 мастер-классов в один день.'
+                    'date' => 'Вы не можете провести более 3 мастер-классов в один день.',
                 ])
                 ->withInput();
         }
@@ -102,12 +102,13 @@ class InstructorController extends Controller
         ]);
 
         return redirect()->route('cabinet.index')
-            ->with('message', 'Мастер-класс "' . $validated['title'] . '" успешно добавлен!');
+            ->with('message', 'Мастер-класс "'.$validated['title'].'" успешно добавлен!');
     }
 
     public function edit($id)
     {
         $masterClass = MasterClass::where('instructor_id', Auth::id())->findOrFail($id);
+
         return view('edit', compact('masterClass'));
     }
 

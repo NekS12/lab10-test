@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('creativity_types', function (Blueprint $table) {
-            $table -> id();
-            $table -> string('name');
-            $table -> text('description');
-            $table -> timestamps();
+            $table->id();
+            $table->string('name');
+            $table->text('description');
+            $table->timestamps();
         });
     }
 

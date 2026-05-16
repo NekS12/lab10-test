@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Booking extends Model
 {
@@ -32,7 +32,7 @@ class Booking extends Model
     public static function isAlreadyBooked(int $userId, int $masterClassId): bool
     {
         return self::where('user_id', $userId)
-                   ->where('master_class_id', $masterClassId)
-                   ->exists();
+            ->where('master_class_id', $masterClassId)
+            ->exists();
     }
 }

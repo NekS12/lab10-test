@@ -1,11 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InstructorController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,7 +30,6 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-
 // ========================
 // 🏠 ПУБЛИЧНЫЕ СТРАНИЦЫ
 // ========================
@@ -41,7 +40,6 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 // Страница вида творчества (категория)
 Route::get('/category/{id}', [CategoryController::class, 'show'])->name('category.show');
 
-
 // ========================
 // 📝 ЗАПИСЬ НА МАСТЕР-КЛАСС (требует авторизации)
 // ========================
@@ -49,30 +47,29 @@ Route::get('/category/{id}', [CategoryController::class, 'show'])->name('categor
 Route::middleware('auth')->prefix('booking')->name('booking.')->group(function () {
     // Страница подтверждения записи
     Route::get('/{id}/confirm', [BookingController::class, 'confirmPage'])->name('confirm');
-    
+
     // Обработка подтверждения или отмены
     Route::post('/{id}/process', [BookingController::class, 'process'])->name('process');
 });
-
 
 // ========================
 // 👨 ЛИЧНЫЙ КАБИНЕТ ВЕДУЩЕГО (требуется роль instructor)
 // ========================
 
 Route::middleware(['auth', 'role:instructor'])->prefix('cabinet')->name('cabinet.')->group(function () {
-    
+
     // Главная страница личного кабинета (список своих МК + участники)
     Route::get('/', [InstructorController::class, 'index'])->name('index');
-    
+
     // Форма создания нового мастер-класса
     Route::get('/create', [InstructorController::class, 'create'])->name('create');
-    
+
     // Сохранение нового мастер-класса
     Route::post('/store', [InstructorController::class, 'store'])->name('store');
-    
+
     // Форма редактирования мастер-класса (только описание и цена)
     Route::get('/{id}/edit', [InstructorController::class, 'edit'])->name('edit');
-    
+
     // Обновление мастер-класса
     Route::put('/{id}/update', [InstructorController::class, 'update'])->name('update');
 });

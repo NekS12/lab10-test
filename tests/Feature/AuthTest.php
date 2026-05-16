@@ -20,20 +20,20 @@ class AuthTest extends TestCase
     public function test_new_users_can_register()
     {
         // Для MySQL используем уникальный email, чтобы не пересекаться с другими тестами
-        $email = 'new_ivan' . uniqid() . '@example.com';
+        $email = 'new_ivan'.uniqid().'@example.com';
 
         $response = $this->post('/register', [
             'full_name' => 'Иван Иванов',
             'email' => $email,
             'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
-            'phone' => '+7999' . rand(1000000, 9999999), // Рандомный телефон для уникальности
+            'phone' => '+7999'.rand(1000000, 9999999), // Рандомный телефон для уникальности
         ]);
 
         $response->assertRedirect(route('login'));
         $this->assertDatabaseHas('users', [
             'email' => $email,
-            'full_name' => 'Иван Иванов'
+            'full_name' => 'Иван Иванов',
         ]);
     }
 
@@ -43,7 +43,7 @@ class AuthTest extends TestCase
             'full_name' => 'Иван',
             'email' => 'not-an-email',
             'password' => '123',
-            'phone' => 'abc', 
+            'phone' => 'abc',
         ]);
 
         $response->assertSessionHasErrors(['phone', 'email', 'password']);
@@ -56,7 +56,7 @@ class AuthTest extends TestCase
             'email' => 'auth_test@test.ru',
             'password' => Hash::make('Password123!'),
             'phone' => '89991112233',
-            'role' => 'visitor'
+            'role' => 'visitor',
         ]);
 
         $response = $this->post('/login', [

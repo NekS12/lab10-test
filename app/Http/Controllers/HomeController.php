@@ -12,7 +12,7 @@ class HomeController extends Controller
     public function index()
     {
         $types = CreativityType::all();
-        
+
         $allClasses = MasterClass::with(['instructor', 'type'])
             ->where('date', '>=', now()->startOfDay())
             ->orderBy('date')

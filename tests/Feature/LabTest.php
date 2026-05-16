@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use App\Models\User;
 
 class LabTest extends TestCase
 {
@@ -31,19 +30,19 @@ class LabTest extends TestCase
     public function test_user_can_register()
     {
         // Используем данные, которые на 100% пробивают твой AuthController
-        $email = 'lab_user_' . uniqid() . '@example.com';
-        
+        $email = 'lab_user_'.uniqid().'@example.com';
+
         $response = $this->post('/register', [
-            'full_name' => 'Сергей Петров', 
+            'full_name' => 'Сергей Петров',
             'email' => $email,
-            'phone' => '+7900' . rand(1000000, 9999999),    
-            'password' => 'Password123!', 
+            'phone' => '+7900'.rand(1000000, 9999999),
+            'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
         ]);
 
         $response->assertRedirect(route('login'));
         $this->assertDatabaseHas('users', [
-            'email' => $email
+            'email' => $email,
         ]);
     }
 }
