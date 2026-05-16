@@ -58,7 +58,7 @@ jobs:
           if [ $PERCENT -lt 50 ]; then echo "Coverage is $PERCENT%, less than 50%"; exit 1; fi
 
       - name: PHPStan
-        run: ./vendor/bin/phpstan analyse
+        run: vendor/bin/phpstan analyse app tests --memory-limit=2G
 
       - name: Pint Linting
         run: ./vendor/bin/pint --test
