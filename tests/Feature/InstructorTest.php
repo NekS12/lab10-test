@@ -22,7 +22,8 @@ class InstructorTest extends TestCase
 
         // Создаем тип творчества (нужен для внешнего ключа)
         $this->type = CreativityType::create([
-            'name' => 'Рисование'
+            'name' => 'Рисование',
+            'description' => 'Описание для рисования',
         ]);
 
         // Создаем пользователя с ролью ведущего

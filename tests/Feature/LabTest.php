@@ -32,16 +32,19 @@ class LabTest extends TestCase
     }
 
     /** @test */
-    public function test_user_can_register()
-    {
-        $response = $this->post('/register', [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
-        ]);
+   public function test_user_can_register()
+{
+    $response = $this->post('/register', [
+        'full_name' => 'Иван Иванов', 
+        'email' => 'test_user@example.com',
+        'phone' => '+79991234567',    
+        'password' => 'Password123!', 
+        'password_confirmation' => 'Password123!',
+    ]);
 
-        $response->assertRedirect();
-        $this->assertDatabaseHas('users', ['email' => 'test@example.com']);
-    }
+    $response->assertRedirect(route('login'));
+    $this->assertDatabaseHas('users', [
+        'email' => 'test_user@example.com'
+    ]);
+}
 }
