@@ -40,7 +40,7 @@ class MasterClassTest extends TestCase
             'title' => 'Лепка из глины',
             'description' => 'Учимся лепить горшки и другие вещи',
             'date' => '2026-06-01',
-            'start_time' => '14:00:00',
+            'start_time' => '13:00',
             'max_participants' => 10,
             'price' => 1500
         ]);
@@ -49,9 +49,9 @@ class MasterClassTest extends TestCase
         $this->assertEquals(1500, $mc->price);
 
         // Проверка getEndTimeAttribute
-        $this->assertEquals('16:00', $mc->end_time);
+        $this->assertEquals('15:00', $mc->end_time);
         
         // Проверка formatted_date_time
-        $this->assertEquals('01.06.2026 14:00', $mc->formatted_date_time);
+        $this->assertEquals('01.06.2026 13:00', $mc->formatted_date_time);
     }
 }
