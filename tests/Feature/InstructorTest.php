@@ -116,7 +116,7 @@ class InstructorTest extends TestCase
             'title' => 'Чужой МК',
             'description' => 'Описание чужого МК длиннее 10 символов',
             'date' => Carbon::now()->addDay()->format('Y-m-d'),
-            'start_time' => '13:00:00',
+            'start_time' => '13:00',
             'max_participants' => 5,
             'price' => 1000,
         ]);
