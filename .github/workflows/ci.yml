@@ -10,6 +10,7 @@ jobs:
   compliance:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Code
       - uses: actions/checkout@v3
 
       - name: Setup PHP
@@ -26,6 +27,7 @@ jobs:
 
       - name: Run Tests
         run: |
+          php artisan key:generate --env=testing
           php artisan config:clear
           php artisan test --coverage-clover=clover.xml
 
