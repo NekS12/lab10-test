@@ -60,7 +60,7 @@ class InstructorTest extends TestCase
             'title' => 'Новый мастер-класс',
             'description' => 'Описание мастер-класса длиной более десяти символов',
             'date' => $tomorrow,
-            'start_time' => '16:00',
+            'start_time' => '11:00',
             'max_participants' => 10,
             'price' => 500,
         ];
