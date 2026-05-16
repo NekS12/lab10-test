@@ -20,25 +20,20 @@ class InstructorTest extends TestCase
     {
         parent::setUp();
 
-        // Создаем тип творчества (нужен для внешнего ключа)
         $this->type = CreativityType::create([
             'name' => 'Рисование',
             'description' => 'Описание для рисования',
         ]);
 
-        // Создаем пользователя с ролью ведущего
         $this->instructor = User::create([
             'full_name' => 'Мастер Йода',
             'email' => 'yoda@test.ru',
             'password' => bcrypt('Password123!'),
             'phone' => '+79990001122',
-            'role' => 'instructor', // Важно для middleware 'role:instructor'
+            'role' => 'instructor',
         ]);
     }
 
-    /**
-     * Проверка доступа к кабинету.
-     */
     public function test_instructor_can_access_cabinet()
     {
         $response = $this->actingAs($this->instructor)
@@ -48,9 +43,6 @@ class InstructorTest extends TestCase
         $response->assertViewIs('cabinet');
     }
 
-    /**
-     * Тест успешного создания мастер-класса.
-     */
     public function test_instructor_can_create_master_class()
     {
         $tomorrow = Carbon::now()->addDay()->format('Y-m-d');
@@ -60,7 +52,7 @@ class InstructorTest extends TestCase
             'title' => 'Новый мастер-класс',
             'description' => 'Описание мастер-класса длиной более десяти символов',
             'date' => $tomorrow,
-            'start_time' => '11:00',
+            'start_time' => '11:00:00', // MySQL любит полный формат
             'max_participants' => 10,
             'price' => 500,
         ];
@@ -72,36 +64,33 @@ class InstructorTest extends TestCase
         $this->assertDatabaseHas('master_classes', ['title' => 'Новый мастер-класс']);
     }
 
-    /**
-     * Проверка бизнес-логики: не более 3-х МК в день.
-     */
-   public function test_instructor_cannot_create_more_than_three_classes_per_day()
+    public function test_instructor_cannot_create_more_than_three_classes_per_day()
     {
         $date = Carbon::now()->addDays(2)->format('Y-m-d');
 
-        // ИСПРАВЛЕНИЕ: Разносим время мастер-классов, чтобы не срабатывал UNIQUE constraint в БД
         for ($i = 0; $i < 3; $i++) {
+            $hour = str_pad(9 + $i, 2, '0', STR_PAD_LEFT); 
+            
             MasterClass::create([
                 'instructor_id' => $this->instructor->id,
                 'type_id' => $this->type->id,
                 'title' => "МК $i",
-                'description' => 'Какое-то описание',
+                'description' => 'Какое-то описание длиннее 10 символов',
                 'date' => $date,
-                'start_time' => (9 + $i) . ':00', // Будет 09:00, 10:00, 11:00
+                'start_time' => "{$hour}:00:00", // Четкий формат HH:MM:SS
                 'max_participants' => 5,
                 'price' => 100,
             ]);
         }
 
-        // Пытаемся создать 4-й — здесь должен сработать твой валидатор в контроллере
         $response = $this->actingAs($this->instructor)
             ->from(route('cabinet.create'))
             ->post(route('cabinet.store'), [
                 'type_id' => $this->type->id,
                 'title' => '4-й лишний',
-                'description' => 'Описание для теста лимита',
+                'description' => 'Описание для теста лимита более 10 символов',
                 'date' => $date,
-                'start_time' => '15:00',
+                'start_time' => '15:00:00',
                 'max_participants' => 10,
                 'price' => 500,
             ]);
@@ -110,36 +99,30 @@ class InstructorTest extends TestCase
         $response->assertSessionHasErrors('date');
     }
 
-    /**
-     * Проверка защиты: нельзя редактировать чужой мастер-класс.
-     */
     public function test_instructor_cannot_edit_others_master_class()
     {
-        // Другой ведущий
         $otherInstructor = User::create([
             'full_name' => 'Другой Мастер',
-            'email' => 'other@test.ru',
+            'email' => 'other_unique@test.ru',
             'password' => bcrypt('Password123!'),
-            'phone' => '+70000000000',
+            'phone' => '+7000' . rand(1111111, 9999999),
             'role' => 'instructor',
         ]);
 
-        // Чужой МК
         $otherClass = MasterClass::create([
             'instructor_id' => $otherInstructor->id,
             'type_id' => $this->type->id,
             'title' => 'Чужой МК',
-            'description' => 'Описание чужого МК',
+            'description' => 'Описание чужого МК длиннее 10 символов',
             'date' => Carbon::now()->addDay()->format('Y-m-d'),
-            'start_time' => '13:00',
+            'start_time' => '13:00:00',
             'max_participants' => 5,
             'price' => 1000,
         ]);
 
-        // Пытаемся зайти на страницу редактирования чужого МК
         $response = $this->actingAs($this->instructor)
             ->get(route('cabinet.edit', $otherClass->id));
 
-        $response->assertStatus(404); // Должно вернуть 404, так как используется findOrFail через scope инструктора
+        $response->assertStatus(404); 
     }
 }

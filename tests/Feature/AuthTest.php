@@ -11,68 +11,56 @@ class AuthTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * Тест отображения страниц.
-     */
     public function test_auth_pages_are_accessible()
     {
         $this->get('/login')->assertStatus(200)->assertViewIs('login');
         $this->get('/register')->assertStatus(200)->assertViewIs('register');
     }
 
-    /**
-     * Тест успешной регистрации.
-     * Учитываем строгие правила: ФИО, телефон, сложный пароль.
-     */
     public function test_new_users_can_register()
     {
+        // Для MySQL используем уникальный email, чтобы не пересекаться с другими тестами
+        $email = 'new_ivan' . uniqid() . '@example.com';
+
         $response = $this->post('/register', [
             'full_name' => 'Иван Иванов',
-            'email' => 'ivan@example.com',
+            'email' => $email,
             'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
-            'phone' => '+79991234567',
+            'phone' => '+7999' . rand(1000000, 9999999), // Рандомный телефон для уникальности
         ]);
 
         $response->assertRedirect(route('login'));
         $this->assertDatabaseHas('users', [
-            'email' => 'ivan@example.com',
-            'full_name' => 'Иван Иванов',
-            'role' => 'visitor',
+            'email' => $email,
+            'full_name' => 'Иван Иванов'
         ]);
     }
 
-    /**
-     * Тест валидации при регистрации (неверный формат телефона).
-     */
     public function test_registration_fails_with_invalid_phone()
     {
         $response = $this->post('/register', [
             'full_name' => 'Иван',
             'email' => 'not-an-email',
             'password' => '123',
-            'phone' => 'abc', // Не пройдет регулярное выражение
+            'phone' => 'abc', 
         ]);
 
         $response->assertSessionHasErrors(['phone', 'email', 'password']);
     }
 
-    /**
-     * Тест входа в систему.
-     */
     public function test_users_can_authenticate()
     {
-        // Создаем пользователя вручную (без фабрики)
         $user = User::create([
             'full_name' => 'Тестовый Юзер',
-            'email' => 'test@test.ru',
+            'email' => 'auth_test@test.ru',
             'password' => Hash::make('Password123!'),
             'phone' => '89991112233',
             'role' => 'visitor'
         ]);
 
         $response = $this->post('/login', [
-            'email' => 'test@test.ru',
+            'email' => 'auth_test@test.ru',
             'password' => 'Password123!',
         ]);
 
@@ -80,36 +68,30 @@ class AuthTest extends TestCase
         $response->assertRedirect(route('home'));
     }
 
-    /**
-     * Тест входа с неверным паролем.
-     */
     public function test_users_can_not_authenticate_with_invalid_password()
     {
         $user = User::create([
-            'full_name' => 'Тестовый Юзер',
-            'email' => 'test@test.ru',
+            'full_name' => 'Неудачный Вход',
+            'email' => 'wrong_pass@test.ru',
             'password' => Hash::make('Password123!'),
-            'phone' => '89991112233',
+            'phone' => '89991110000',
         ]);
 
         $this->post('/login', [
-            'email' => 'test@test.ru',
+            'email' => 'wrong_pass@test.ru',
             'password' => 'wrong-password',
         ]);
 
         $this->assertGuest();
     }
 
-    /**
-     * Тест выхода из системы.
-     */
     public function test_users_can_logout()
     {
         $user = User::create([
-            'full_name' => 'Юзер',
-            'email' => 'user@test.ru',
+            'full_name' => 'Выходящий Юзер',
+            'email' => 'logout@test.ru',
             'password' => Hash::make('Password123!'),
-            'phone' => '89991112244',
+            'phone' => '89991115566',
         ]);
 
         $response = $this->actingAs($user)->post('/logout');
