@@ -48,7 +48,7 @@ class MasterClassTest extends TestCase
             'title' => 'Лепка из глины',
             'description' => 'Учимся лепить горшки',
             'date' => '2026-06-01',
-            'start_time' => '14:00',
+            'start_time' => '14:00:00',
             'max_participants' => 10,
             'price' => 1500
         ]);
